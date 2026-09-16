@@ -1,0 +1,34 @@
+name: Bug report
+description: Something in the Rust SDK does not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This tracker is the **Rust client**. Daemon / `clusdr` CLI bugs go to [clusdr/clusdr](https://github.com/clusdr/clusdr/issues/new/choose).
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal program
+      render: rust
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: `rustc --version`, crate version, and `clusdr version` if a daemon is running.
+    validations:
+      required: true

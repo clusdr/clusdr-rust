@@ -1,0 +1,17 @@
+name: Feature request
+description: A change to the Rust SDK
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you solving
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you want
+      description: The Rust API change. Daemon-side features belong in clusdr/clusdr.
+    validations:
+      required: true

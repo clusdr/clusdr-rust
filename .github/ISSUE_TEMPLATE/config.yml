@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Daemon / Runtime
+    url: https://github.com/clusdr/clusdr/issues/new/choose
+    about: The local clusdr process, CLI, Raft, or install.sh.
+  - name: Rust SDK docs
+    url: https://clusdr.io/docs/sdk/rust
+    about: How the client is supposed to behave.

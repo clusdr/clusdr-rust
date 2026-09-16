@@ -1,0 +1,37 @@
+[package]
+name = "clusdr"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "Application SDK for the local Clusdr daemon"
+license = "Apache-2.0"
+repository = "https://github.com/clusdr/clusdr-rust"
+homepage = "https://clusdr.io"
+documentation = "https://clusdr.io/docs/sdk/rust"
+readme = "README.md"
+keywords = ["clusdr", "cluster", "grpc", "membership", "lock"]
+categories = ["network-programming", "api-bindings"]
+authors = ["The clusdr Authors"]
+exclude = [".github/"]
+
+[dependencies]
+prost = "0.13"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
+tokio-stream = "0.1"
+tokio-util = { version = "0.7", features = ["rt"] }
+tonic = { version = "0.13", features = ["tls-ring"] }
+uuid = { version = "1", features = ["v4"] }
+x509-parser = "0.16"
+
+[build-dependencies]
+tonic-build = "0.13"
+
+[dev-dependencies]
+async-stream = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "net"] }
+tokio-stream = { version = "0.1", features = ["net"] }
+
+[lib]
+name = "clusdr"
+path = "src/lib.rs"
