@@ -1,8 +1,8 @@
 <h1 align="center">
   <a href="https://clusdr.io/docs/sdk/rust">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/rust-lettermark-dark.svg">
-      <img src="assets/rust-lettermark.svg" alt="clusdr Rust" width="160" height="164">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/clusdr/clusdr-rust/main/assets/rust-lettermark-dark.svg">
+      <img src="https://raw.githubusercontent.com/clusdr/clusdr-rust/main/assets/rust-lettermark.svg" alt="clusdr Rust" width="160" height="164">
     </picture>
   </a>
 </h1>
@@ -29,7 +29,7 @@ Not a database, queue, or Kubernetes. Wire API is **v1alpha1**. TLS is on by def
 
 ```toml
 [dependencies]
-clusdr = "0.1.2"
+clusdr = "0.1.3"
 ```
 
 Same version train as the daemon. A running daemon on this host is required:
