@@ -27,7 +27,7 @@
 //! `UNAVAILABLE` / `ABORTED` / `RESOURCE_EXHAUSTED`.
 
 #![allow(clippy::result_large_err)]
-#![doc(html_root_url = "https://docs.rs/clusdr/0.1.3")]
+#![doc(html_root_url = "https://docs.rs/clusdr/0.1.4")]
 
 mod cluster;
 mod coord;

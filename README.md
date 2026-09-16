@@ -29,7 +29,7 @@ Not a database, queue, or Kubernetes. Wire API is **v1alpha1**. TLS is on by def
 
 ```toml
 [dependencies]
-clusdr = "0.1.3"
+clusdr = "0.1.4"
 ```
 
 Same version train as the daemon. A running daemon on this host is required:
