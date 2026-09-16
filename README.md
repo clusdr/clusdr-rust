@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://clusdr.io/docs/sdk/rust"><img src="https://img.shields.io/badge/docs-clusdr.io-0C0C10" alt="docs"></a>
+  <a href="https://crates.io/crates/clusdr"><img src="https://img.shields.io/crates/v/clusdr" alt="crates.io"></a>
   <a href="https://github.com/clusdr/clusdr-rust/actions/workflows/ci.yml"><img src="https://github.com/clusdr/clusdr-rust/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/clusdr/clusdr-rust/blob/main/Cargo.toml"><img src="https://img.shields.io/badge/rust-1.82%2B-orange" alt="Rust 1.82+"></a>
   <a href="https://github.com/clusdr/clusdr-rust/blob/main/LICENSE"><img src="https://img.shields.io/github/license/clusdr/clusdr-rust" alt="License"></a>
@@ -28,7 +29,7 @@ Not a database, queue, or Kubernetes. Wire API is **v1alpha1**. TLS is on by def
 
 ```toml
 [dependencies]
-clusdr = { git = "https://github.com/clusdr/clusdr-rust" }
+clusdr = "0.1.2"
 ```
 
 Same version train as the daemon. A running daemon on this host is required:
@@ -80,7 +81,7 @@ One `Cluster` is cheap to clone (shared connection, same holder). `unlock` is pr
 
 `ttl` is `Option<Duration>`. `None` or zero sends `ttl_ms = 0`; the daemon uses its default (15s). `close` stops Watch, unlocks, and revokes what this process still holds. Failures are `clusdr::Error`.
 
-Full surface: [Rust SDK](https://clusdr.io/docs/sdk/rust).
+Full surface: [Rust SDK](https://clusdr.io/docs/sdk/rust). Runnable copies (Go, Python, and Rust): [examples](https://github.com/clusdr/clusdr/tree/main/examples).
 
 ## TLS
 
