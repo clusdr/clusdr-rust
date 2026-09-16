@@ -81,7 +81,7 @@ One `Cluster` is cheap to clone (shared connection, same holder). `unlock` is pr
 
 `ttl` is `Option<Duration>`. `None` or zero sends `ttl_ms = 0`; the daemon uses its default (15s). `close` stops Watch, unlocks, and revokes what this process still holds. Failures are `clusdr::Error`.
 
-Full surface: [Rust SDK](https://clusdr.io/docs/sdk/rust). Runnable copies (Go, Python, and Rust): [examples](https://github.com/clusdr/clusdr/tree/main/examples).
+Full surface: [Rust SDK](https://clusdr.io/docs/sdk/rust). Runnable copies (Go, Python, Rust, TypeScript, and Java): [examples](https://github.com/clusdr/clusdr/tree/main/examples).
 
 ## TLS
 
