@@ -14,6 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+          version: "1.73.0"
+
+      - name: Proto pin
+        run: |
+          make proto PROTO_DIR=/does-not-exist PROTO_REF=main
+          git diff --exit-code -- proto/
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy

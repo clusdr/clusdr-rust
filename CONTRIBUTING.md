@@ -28,12 +28,12 @@ CI lints PR commits. Prefer squash-merge; the squash title must stay conventiona
 
 ## Requirements
 
-Rust 1.82+.
+Rust 1.82+. [Buf](https://buf.build/docs/cli/installation) to refresh vendored proto.
 
 ```bash
-make proto    # copy .proto from ../clusdr/proto
+make proto    # export buf.build/clusdr/api (sibling ../clusdr/proto/api, else BSR, else GitHub)
 cargo test
 cargo clippy --all-targets -- -D warnings
 ```
 
-Generated stubs are produced by `tonic-build` in `build.rs`. Do not check them in; regenerate by copying proto from the daemon repo.
+Generated stubs are produced by `tonic-build` in `build.rs`. Do not check them in; regenerate by exporting [`buf.build/clusdr/api`](https://buf.build/clusdr/api). `join` / `heartbeat` are `buf.build/clusdr/internal` and are not exported.

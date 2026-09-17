@@ -9,8 +9,8 @@ use crate::error::{Error, Result};
 use crate::retry::{remaining, retry};
 use crate::types::{from_ms, renew_interval, ttl_ms, Lease, Lock};
 use crate::v1alpha1::{
-    GrantLeaseRequest, GrantLeaseResponse, LockRequest, LockResponse, RenewLeaseRequest,
-    RenewLockRequest, RevokeLeaseRequest, UnlockRequest,
+    GrantRequest, GrantResponse, LeaseServiceRenewRequest, LockRequest, LockServiceRenewRequest,
+    RevokeRequest, TryLockRequest, UnlockRequest,
 };
 use crate::Cluster;
 
@@ -61,7 +61,14 @@ impl Cluster {
             };
             return Err(Error::new(format!("clusdr: lock {name:?}: {msg}")));
         }
-        self.adopt_lock(resp, name, ttl).await
+        self.adopt_lock(
+            resp.holder,
+            resp.fencing_token,
+            resp.deadline_unix_ms,
+            name,
+            ttl,
+        )
+        .await
     }
 
     pub async fn try_lock(
@@ -81,7 +88,7 @@ impl Cluster {
             let holder = holder.clone();
             let name_rpc = name_rpc.clone();
             async move {
-                let mut req = Request::new(LockRequest {
+                let mut req = Request::new(TryLockRequest {
                     name: name_rpc,
                     holder,
                     ttl_ms: ttl_ms(ttl),
@@ -95,7 +102,16 @@ impl Cluster {
         if !resp.acquired {
             return Ok(None);
         }
-        Ok(Some(self.adopt_lock(resp, name, ttl).await?))
+        Ok(Some(
+            self.adopt_lock(
+                resp.holder,
+                resp.fencing_token,
+                resp.deadline_unix_ms,
+                name,
+                ttl,
+            )
+            .await?,
+        ))
     }
 
     pub async fn unlock(&self, name: impl AsRef<str>) -> Result<()> {
@@ -125,7 +141,7 @@ impl Cluster {
             let owner = owner.clone();
             let name_rpc = name_rpc.clone();
             async move {
-                let mut req = Request::new(GrantLeaseRequest {
+                let mut req = Request::new(GrantRequest {
                     name: name_rpc,
                     owner,
                     ttl_ms: ttl_ms(ttl),
@@ -161,7 +177,7 @@ impl Cluster {
             )));
         };
         let deadline = Instant::now() + self.inner.opts.request_timeout;
-        let req_body = RenewLeaseRequest {
+        let req_body = LeaseServiceRenewRequest {
             name: ls.name.clone(),
             owner: ls.owner.clone(),
             fencing_token: ls.token,
@@ -230,20 +246,22 @@ impl Cluster {
 
     async fn adopt_lock(
         &self,
-        resp: LockResponse,
+        holder: String,
+        token: u64,
+        deadline_unix_ms: i64,
         name: String,
         ttl: Option<Duration>,
     ) -> Result<Arc<Lock>> {
-        let holder = if resp.holder.is_empty() {
+        let holder = if holder.is_empty() {
             self.inner.holder.clone()
         } else {
-            resp.holder
+            holder
         };
         let lock = Arc::new(Lock {
             name: name.clone(),
             holder,
-            token: resp.fencing_token,
-            deadline: std::sync::Mutex::new(from_ms(resp.deadline_unix_ms)),
+            token,
+            deadline: std::sync::Mutex::new(from_ms(deadline_unix_ms)),
         });
         let stop = CancellationToken::new();
         {
@@ -267,7 +285,7 @@ impl Cluster {
 
     async fn adopt_lease(
         &self,
-        resp: GrantLeaseResponse,
+        resp: GrantResponse,
         name: String,
         ttl: Option<Duration>,
     ) -> Result<Arc<Lease>> {
@@ -345,7 +363,7 @@ impl Cluster {
     async fn drop_lease(&self, held: &HeldLease) -> Result<()> {
         held.lease.stop.cancel();
         let deadline = Instant::now() + self.inner.opts.request_timeout;
-        let body = RevokeLeaseRequest {
+        let body = RevokeRequest {
             name: held.lease.name.clone(),
             owner: held.lease.owner.clone(),
             fencing_token: held.lease.token,
@@ -427,7 +445,7 @@ impl Cluster {
                     _ = cluster_stop.cancelled() => return,
                     _ = tokio::time::sleep(interval) => {}
                 }
-                let mut req = Request::new(RenewLockRequest {
+                let mut req = Request::new(LockServiceRenewRequest {
                     name: lock.name.clone(),
                     holder: lock.holder.clone(),
                     fencing_token: lock.token,
@@ -466,7 +484,7 @@ impl Cluster {
                     _ = cluster_stop.cancelled() => return,
                     _ = tokio::time::sleep(interval) => {}
                 }
-                let mut req = Request::new(RenewLeaseRequest {
+                let mut req = Request::new(LeaseServiceRenewRequest {
                     name: lease.name.clone(),
                     owner: lease.owner.clone(),
                     fencing_token: lease.token,

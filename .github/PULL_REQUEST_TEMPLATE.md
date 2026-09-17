@@ -5,7 +5,7 @@
 ## Testing
 
 - [ ] `cargo test` (skip if docs-only)
-- [ ] Proto copied with `make proto` if the daemon proto moved
+- [ ] Proto exported with `make proto` if the daemon proto moved
 
 ## Commits
 

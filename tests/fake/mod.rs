@@ -21,11 +21,12 @@ use clusdr::v1alpha1::lock_service_server::{LockService, LockServiceServer};
 use clusdr::v1alpha1::membership_service_server::{MembershipService, MembershipServiceServer};
 use clusdr::v1alpha1::watch_service_server::{WatchService, WatchServiceServer};
 use clusdr::v1alpha1::{
-    GetLeaderRequest, GetLeaderResponse, GrantLeaseRequest, GrantLeaseResponse, HealthRequest,
-    HealthResponse, ListMembersRequest, ListMembersResponse, LockRequest, LockResponse, Member,
-    PublishEventRequest, PublishEventResponse, RenewLeaseRequest, RenewLeaseResponse,
-    RenewLockRequest, RenewLockResponse, RevokeLeaseRequest, RevokeLeaseResponse, UnlockRequest,
-    UnlockResponse, WatchRequest, WatchResponse,
+    GetLeaderRequest, GetLeaderResponse, GrantRequest, GrantResponse, HealthRequest,
+    HealthResponse, LeaseServiceRenewRequest, LeaseServiceRenewResponse, ListMembersRequest,
+    ListMembersResponse, LockRequest, LockResponse, LockServiceRenewRequest,
+    LockServiceRenewResponse, Member, PublishEventRequest, PublishEventResponse, RevokeRequest,
+    RevokeResponse, TryLockRequest, TryLockResponse, UnlockRequest, UnlockResponse, WatchRequest,
+    WatchResponse,
 };
 
 #[derive(Clone)]
@@ -391,8 +392,8 @@ impl LockService for Locks {
 
     async fn try_lock(
         &self,
-        request: Request<LockRequest>,
-    ) -> Result<Response<LockResponse>, Status> {
+        request: Request<TryLockRequest>,
+    ) -> Result<Response<TryLockResponse>, Status> {
         let req = request.into_inner();
         let (rec, ok) = self
             .table
@@ -404,7 +405,7 @@ impl LockService for Locks {
             .await;
         let deadline_unix_ms = deadline_ms(&rec);
         if !ok {
-            return Ok(Response::new(LockResponse {
+            return Ok(Response::new(TryLockResponse {
                 acquired: false,
                 message: "held".into(),
                 fencing_token: rec.token,
@@ -412,7 +413,7 @@ impl LockService for Locks {
                 deadline_unix_ms,
             }));
         }
-        Ok(Response::new(LockResponse {
+        Ok(Response::new(TryLockResponse {
             acquired: true,
             message: String::new(),
             fencing_token: rec.token,
@@ -437,8 +438,8 @@ impl LockService for Locks {
 
     async fn renew(
         &self,
-        request: Request<RenewLockRequest>,
-    ) -> Result<Response<RenewLockResponse>, Status> {
+        request: Request<LockServiceRenewRequest>,
+    ) -> Result<Response<LockServiceRenewResponse>, Status> {
         let req = request.into_inner();
         let reuse = self.table.lock_ttl(&req.name).await;
         let rec = self
@@ -450,7 +451,7 @@ impl LockService for Locks {
                 ttl(req.ttl_ms, reuse),
             )
             .await?;
-        Ok(Response::new(RenewLockResponse {
+        Ok(Response::new(LockServiceRenewResponse {
             renewed: true,
             message: String::new(),
             fencing_token: req.fencing_token,
@@ -476,8 +477,8 @@ pub struct Leases {
 impl LeaseService for Leases {
     async fn grant(
         &self,
-        request: Request<GrantLeaseRequest>,
-    ) -> Result<Response<GrantLeaseResponse>, Status> {
+        request: Request<GrantRequest>,
+    ) -> Result<Response<GrantResponse>, Status> {
         let req = request.into_inner();
         let (rec, ok) = self
             .table
@@ -489,7 +490,7 @@ impl LeaseService for Leases {
             .await;
         let deadline_unix_ms = deadline_ms(&rec);
         if !ok {
-            return Ok(Response::new(GrantLeaseResponse {
+            return Ok(Response::new(GrantResponse {
                 granted: false,
                 message: "held".into(),
                 fencing_token: rec.token,
@@ -497,7 +498,7 @@ impl LeaseService for Leases {
                 deadline_unix_ms,
             }));
         }
-        Ok(Response::new(GrantLeaseResponse {
+        Ok(Response::new(GrantResponse {
             granted: true,
             message: String::new(),
             fencing_token: rec.token,
@@ -508,8 +509,8 @@ impl LeaseService for Leases {
 
     async fn renew(
         &self,
-        request: Request<RenewLeaseRequest>,
-    ) -> Result<Response<RenewLeaseResponse>, Status> {
+        request: Request<LeaseServiceRenewRequest>,
+    ) -> Result<Response<LeaseServiceRenewResponse>, Status> {
         let req = request.into_inner();
         let reuse = self.table.lease_ttl(&req.name).await;
         let rec = self
@@ -521,7 +522,7 @@ impl LeaseService for Leases {
                 ttl(req.ttl_ms, reuse),
             )
             .await?;
-        Ok(Response::new(RenewLeaseResponse {
+        Ok(Response::new(LeaseServiceRenewResponse {
             renewed: true,
             message: String::new(),
             fencing_token: req.fencing_token,
@@ -531,13 +532,13 @@ impl LeaseService for Leases {
 
     async fn revoke(
         &self,
-        request: Request<RevokeLeaseRequest>,
-    ) -> Result<Response<RevokeLeaseResponse>, Status> {
+        request: Request<RevokeRequest>,
+    ) -> Result<Response<RevokeResponse>, Status> {
         let req = request.into_inner();
         self.table
             .revoke_lease(&req.name, &req.owner, req.fencing_token)
             .await?;
-        Ok(Response::new(RevokeLeaseResponse {
+        Ok(Response::new(RevokeResponse {
             revoked: true,
             message: String::new(),
         }))
