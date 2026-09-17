@@ -6,6 +6,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub struct Member {
     pub id: String,
     pub address: String,
+    /// Liveness: `alive` or `dead`. A left id is gone from `members()`.
     pub status: String,
     pub leader: bool,
     pub role: String,
@@ -14,7 +15,8 @@ pub struct Member {
 /// A cluster or custom event from the Watch stream.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Event {
-    /// `member.join`, `leader.changed`, `custom.<topic>`, `watch.sync`, …
+    /// `member.join`, `member.dead` (crash, still listed), `member.left`
+    /// (`clusdr leave`, gone), `leader.changed`, `custom.<topic>`, `watch.sync`, …
     pub event_type: String,
     pub source: String,
     pub payload: Vec<u8>,
