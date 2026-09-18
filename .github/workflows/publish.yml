@@ -27,6 +27,7 @@ jobs:
   crates:
     name: crates.io
     needs: [test]
+    if: ${{ !contains(github.ref_name, '-') }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
